@@ -105,14 +105,14 @@ def classify_ticket(description: str) -> dict[str, str | None]:
         client = genai.Client(api_key=api_key)
 
         response = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-3.6-flash",
             contents=description,
             config=types.GenerateContentConfig(
                 system_instruction=CLASSIFICATION_SYSTEM_PROMPT,
                 response_mime_type="application/json",
                 response_schema=_RESPONSE_SCHEMA,
                 temperature=0.0,
-                http_options=types.HttpOptions(timeout=8_000),
+                http_options=types.HttpOptions(timeout=30_000),
             ),
         )
 
