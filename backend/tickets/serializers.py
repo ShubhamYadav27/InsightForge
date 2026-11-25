@@ -44,3 +44,15 @@ class TicketUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ticket
         fields = ["status", "category", "priority"]
+
+
+class TicketClassifyRequestSerializer(serializers.Serializer):
+    """Validates the classify request – only a non-blank description is needed."""
+
+    description = serializers.CharField()
+
+    def validate_description(self, value: str) -> str:
+        """Reject blank-only descriptions that carry no classifiable content."""
+        if not value.strip():
+            raise serializers.ValidationError("Description must not be blank.")
+        return value

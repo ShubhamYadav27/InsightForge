@@ -12,7 +12,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from tickets.models import Ticket
-from tickets.serializers import TicketSerializer, TicketUpdateSerializer
+from tickets.serializers import (
+    TicketClassifyRequestSerializer,
+    TicketSerializer,
+    TicketUpdateSerializer,
+)
+from tickets.services.llm_service import classify_ticket
 from tickets.services.stats_service import get_ticket_stats
 
 logger = logging.getLogger(__name__)
@@ -82,3 +87,15 @@ class TicketStatsView(APIView):
         """Return stats computed entirely via database aggregation."""
         stats = get_ticket_stats()
         return Response(stats, status=status.HTTP_200_OK)
+
+
+class TicketClassifyView(APIView):
+    """POST /api/tickets/classify/ – LLM-powered ticket classification."""
+
+    def post(self, request: Request) -> Response:
+        """Validate description, call LLM service, return suggestions."""
+        serializer = TicketClassifyRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        result = classify_ticket(serializer.validated_data["description"])
+        return Response(result, status=status.HTTP_200_OK)
